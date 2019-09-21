@@ -77,7 +77,7 @@ class _HomeScreensState extends State<HomeScreens> {
       );
 
   Widget themeChanger(DynamicTheme themeProvider, bool value) => IconButton(
-        icon: Icon(Icons.wb_sunny),
+        icon: _value ? Icon(Icons.brightness_low) : Icon(Icons.brightness_high),
         onPressed: () {
           setState(() {
             _value = !_value;

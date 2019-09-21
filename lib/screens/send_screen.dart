@@ -11,7 +11,12 @@ class SendScreen extends StatefulWidget {
 }
 
 class _SendScreenState extends State<SendScreen> {
+  // bool _isCheck1 = false;
+  // bool _isCheck2 = false;
+  // bool _isCheck3 = false;
   bool _value = false;
+  List<Users> users;
+  List<bool> _listCheck = new List<bool>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,16 @@ class _SendScreenState extends State<SendScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.send),
-            onPressed: () {},
+            onPressed: () async {
+              List<String> listPhoneNumber = new List<String>();
+              for (var i = 0; i < _listCheck.length; i++) {
+                if (_listCheck[i] == true) {
+                  listPhoneNumber.add(users[i].mobile);
+                }
+              }
+              await FlutterSms.sendSMS(
+                  message: null, recipients: listPhoneNumber);
+            },
           )
         ],
       ),
@@ -29,19 +43,45 @@ class _SendScreenState extends State<SendScreen> {
         child: FutureBuilder(
           future: FetchData.getUsers(),
           builder: (context, snapshot) {
-            List<Users> users = snapshot.data;
+            users = snapshot.data;
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ListView.builder(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  itemCount: users.length,
-                  itemBuilder: (context, index) {
-                    final user = users[index];
-                    return buildCard(user);
-                  },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    ListTile(
+                      title: Text('Select all'),
+                      trailing: Checkbox(
+                        value: _value,
+                        onChanged: (bool value) {
+                          setState(() {
+                            for (var i = 0; i < _listCheck.length; i++) {
+                              _listCheck[i] = value;
+                            }
+
+                            _value = value;
+                          });
+                        },
+                      ),
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.only(top: 8.0),
+                      itemCount: users.length,
+                      itemBuilder: (context, index) {
+                        final user = users[index];
+                        for (var i = 0; i < users.length; i++) {
+                          if (_listCheck.length < users.length) {
+                            _listCheck.add(false);
+                          }
+                        }
+                        return buildCard(user, index);
+                      },
+                    ),
+                  ],
                 ),
               );
             } else {
@@ -53,7 +93,7 @@ class _SendScreenState extends State<SendScreen> {
     );
   }
 
-  Widget buildCard(Users user) {
+  Widget buildCard(Users user, index) {
     return Card(
       elevation: 4.0,
       child: ListTile(
@@ -61,10 +101,10 @@ class _SendScreenState extends State<SendScreen> {
         title: Text(user.name),
         subtitle: Text('${user.post}, ${user.mobile}'),
         trailing: Checkbox(
-          value: _value,
+          value: _listCheck[index],
           onChanged: (value) {
             setState(() {
-              _value = value;
+              _listCheck[index] = value;
             });
           },
         ),
