@@ -11,32 +11,23 @@ class SendScreen extends StatefulWidget {
 }
 
 class _SendScreenState extends State<SendScreen> {
-  // bool _isCheck1 = false;
-  // bool _isCheck2 = false;
-  // bool _isCheck3 = false;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  Users user;
   bool _value = false;
   List<Users> users;
-  List<bool> _listCheck = new List<bool>();
+  List<bool> _listCheck = List<bool>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Send Messages'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.send),
-            onPressed: () async {
-              List<String> listPhoneNumber = new List<String>();
-              for (var i = 0; i < _listCheck.length; i++) {
-                if (_listCheck[i] == true) {
-                  listPhoneNumber.add(users[i].mobile);
-                }
-              }
-              await FlutterSms.sendSMS(
-                  message: null, recipients: listPhoneNumber);
-            },
-          )
+            onPressed: () => sendSms(),
+          ),
         ],
       ),
       body: Center(
@@ -52,24 +43,20 @@ class _SendScreenState extends State<SendScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    ListTile(
+                    CheckboxListTile(
                       title: Text('Select all'),
-                      trailing: Checkbox(
-                        value: _value,
-                        onChanged: (bool value) {
-                          setState(() {
-                            for (var i = 0; i < _listCheck.length; i++) {
-                              _listCheck[i] = value;
-                            }
-
-                            _value = value;
-                          });
-                        },
-                      ),
+                      value: _value,
+                      onChanged: (bool value) {
+                        setState(() {
+                          for (var i = 0; i < _listCheck.length; i++) {
+                            _listCheck[i] = value;
+                          }
+                          _value = value;
+                        });
+                      },
                     ),
-                    ListView.builder(
+                    ListView.separated(
                       shrinkWrap: true,
-                      padding: const EdgeInsets.only(top: 8.0),
                       itemCount: users.length,
                       itemBuilder: (context, index) {
                         final user = users[index];
@@ -78,8 +65,10 @@ class _SendScreenState extends State<SendScreen> {
                             _listCheck.add(false);
                           }
                         }
-                        return buildCard(user, index);
+                        return buildCheckbox(user, index);
                       },
+                      separatorBuilder: (BuildContext context, int index) =>
+                          Divider(),
                     ),
                   ],
                 ),
@@ -93,28 +82,39 @@ class _SendScreenState extends State<SendScreen> {
     );
   }
 
-  Widget buildCard(Users user, index) {
-    return Card(
-      elevation: 4.0,
-      child: ListTile(
-        leading: CircleAvatar(child: Text(user.id.toString())),
-        title: Text(user.name),
-        subtitle: Text('${user.post}, ${user.mobile}'),
-        trailing: Checkbox(
-          value: _listCheck[index],
-          onChanged: (value) {
-            setState(() {
-              _listCheck[index] = value;
-            });
-          },
-        ),
-      ),
+  Widget buildCheckbox(Users user, int index) {
+    return CheckboxListTile(
+      title: Text(user.name),
+      subtitle: Text('${user.mobile}'),
+      value: _listCheck[index],
+      onChanged: (bool value) {
+        setState(() {
+          _listCheck[index] = value;
+        });
+      },
     );
   }
 
-  sendSms(Users user) async {
-    if (user != null)
-      await FlutterSms.sendSMS(
-          message: null, recipients: <String>[user.mobile]);
+  sendSms() async {
+    List<String> listPhoneNumber = List<String>();
+    for (var i = 0; i < _listCheck.length; i++) {
+      if (_listCheck[i] == true) {
+        listPhoneNumber.add(users[i].mobile);
+      }
+    }
+    if (listPhoneNumber.length > 0) {
+      await FlutterSms.sendSMS(message: null, recipients: listPhoneNumber);
+    } else {
+      final snackbar = SnackBar(
+        content: ListTile(
+          leading: Icon(
+            Icons.info_outline,
+            color: Theme.of(context).primaryColor,
+          ),
+          title: Text('Please select any contact'),
+        ),
+      );
+      _scaffoldKey.currentState.showSnackBar(snackbar);
+    }
   }
 }

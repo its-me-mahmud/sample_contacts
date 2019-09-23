@@ -1,6 +1,6 @@
 import 'package:call_number/call_number.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sms/flutter_sms.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sample_contacts/models/users.dart';
 import 'package:sample_contacts/screens/about_screen.dart';
@@ -16,6 +16,7 @@ class HomeScreens extends StatefulWidget {
 }
 
 class _HomeScreensState extends State<HomeScreens> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _value = true;
 
   @override
@@ -29,6 +30,7 @@ class _HomeScreensState extends State<HomeScreens> {
     final themeProvider = Provider.of<DynamicTheme>(context);
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Home'),
         actions: <Widget>[
@@ -65,13 +67,22 @@ class _HomeScreensState extends State<HomeScreens> {
   }
 
   Widget buildCard(Users user) => Card(
-        elevation: 4.0,
+        elevation: 2.0,
         child: ListTile(
           leading: CircleAvatar(child: Text(user.id.toString())),
           title: Text(user.name),
-          subtitle: Text('${user.post}, ${user.mobile}'),
+          subtitle: Text('${user.post}'),
           trailing: IconButton(
-              icon: Icon(Icons.message), onPressed: () => sendSms(user)),
+            icon: Icon(Icons.content_copy),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: user.mobile));
+              final snackbar = SnackBar(
+                behavior: SnackBarBehavior.floating,
+                content: Text('Copied to the clipboard'),
+              );
+              _scaffoldKey.currentState.showSnackBar(snackbar);
+            },
+          ),
           onTap: () => makeCall(user),
         ),
       );
@@ -114,13 +125,5 @@ class _HomeScreensState extends State<HomeScreens> {
 
   void makeCall(Users user) async {
     if (user != null) await CallNumber().callNumber(user.mobile);
-  }
-
-  void sendSms(Users user) async {
-    if (user != null)
-      await FlutterSms.sendSMS(
-        message: null,
-        recipients: <String>[user.mobile],
-      );
   }
 }
