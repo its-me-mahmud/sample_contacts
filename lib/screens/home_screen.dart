@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sample_contacts/models/users.dart';
+import 'package:sample_contacts/provider/dynamic_theme.dart';
 import 'package:sample_contacts/screens/about_screen.dart';
 import 'package:sample_contacts/screens/send_screen.dart';
 import 'package:sample_contacts/services/fetch_data.dart';
-import 'package:sample_contacts/theme.dart';
 
 class HomeScreens extends StatefulWidget {
   static const String route = '/';
@@ -27,7 +27,7 @@ class _HomeScreensState extends State<HomeScreens> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<DynamicTheme>(context);
+    final themeProvider = Provider.of<DynamicTheme>(context, listen: false);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -88,7 +88,7 @@ class _HomeScreensState extends State<HomeScreens> {
       );
 
   Widget themeChanger(DynamicTheme themeProvider, bool value) => IconButton(
-        icon: _value ? Icon(Icons.brightness_low) : Icon(Icons.brightness_high),
+        icon: _value ? Icon(Icons.lightbulb_outline) : Icon(Icons.wb_sunny),
         onPressed: () {
           setState(() {
             _value = !_value;
@@ -102,7 +102,7 @@ class _HomeScreensState extends State<HomeScreens> {
         itemBuilder: (context) => [
           PopupMenuItem(
             value: 'sms',
-            child: Text('Send messages'),
+            child: Text('SMS'),
           ),
           PopupMenuItem(
             value: 'about',

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sample_contacts/provider/dynamic_theme.dart';
 import 'package:sample_contacts/screens/about_screen.dart';
 import 'package:sample_contacts/screens/home_screen.dart';
 import 'package:sample_contacts/screens/send_screen.dart';
-import 'package:sample_contacts/theme.dart';
 
-void main() => runApp(ChangeNotifierProvider(
-    builder: (context) => DynamicTheme(), child: MyApp()));
+void main() => runApp(
+      MultiProvider(
+        providers: <SingleChildCloneableWidget>[
+          ChangeNotifierProvider(builder: (context) => DynamicTheme()),
+        ],
+        child: MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
   @override
@@ -15,7 +21,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Sample Contacts',
-      theme: themeProvider.getDarkMode() ? ThemeData.dark() : ThemeData.light(),
+      theme: themeProvider.getDarkMode ? ThemeData.dark() : ThemeData.light(),
       initialRoute: HomeScreens.route,
       routes: {
         HomeScreens.route: (context) => HomeScreens(),
