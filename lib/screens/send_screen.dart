@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:sample_contacts/models/users.dart';
@@ -84,8 +85,8 @@ class _SendScreenState extends State<SendScreen> {
 
   Widget buildCheckbox(Users user, int index) {
     return CheckboxListTile(
-      title: Text(user.name),
-      subtitle: Text('${user.mobile}'),
+      title: AutoSizeText(user.name, maxLines: 1),
+      subtitle: AutoSizeText('${user.post}', maxLines: 1),
       value: _listCheck[index],
       onChanged: (bool value) {
         setState(() {

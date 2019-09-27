@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:call_number/call_number.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,9 +70,9 @@ class _HomeScreensState extends State<HomeScreens> {
   Widget buildCard(Users user) => Card(
         elevation: 2.0,
         child: ListTile(
-          leading: CircleAvatar(child: Text(user.id.toString())),
-          title: Text(user.name),
-          subtitle: Text('${user.post}'),
+          title: AutoSizeText(user.name, maxLines: 1),
+          subtitle: AutoSizeText('${user.post}' + ', ' + '${user.mobile}',
+              maxLines: 1),
           trailing: IconButton(
             icon: Icon(Icons.content_copy),
             onPressed: () {
